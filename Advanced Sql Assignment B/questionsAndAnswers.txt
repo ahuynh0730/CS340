@@ -1,0 +1,121 @@
+
+Find all films with maximum length or minimum rental duration (compared to all other films).
+
+In other words let L be the maximum film length, and let R be the minimum rental duration in the table film. You need to find all films that have length L or duration R or both length L and duration R.
+
+If a film has either a maximum length OR a minimal rental duration it should appear in the result set. It does not need to have both the maximum length and the minimum duration.
+
+ 
+
+You just need to return the film_id for this query.
+
+Order your results by film_id in ascending order.
+
+
+-- Put query for Q1 here
+SELECT `film_id` FROM `film` 
+    WHERE `length` = (SELECT MAX(`length`) FROM `film` AS L)
+    OR `rental_duration` = (SELECT MIN(`rental_duration`) FROM `film` AS R) 
+    ORDER BY `film_id` ASC;
+___________________________________________________________________________________________________________
+
+We want to find out how many of each category of film ED CHASE has starred in.
+
+So return a table with category_name and the count of the number_of_films that ED was in that category.
+
+Your query should return every category even if ED has been in no films in that category
+
+
+Order by the category name in ascending order.
+
+
+-- Put query for Q2 here
+
+SELECT c.name AS category_name, COUNT(a.actor_id) AS number_of_films
+    FROM `category` c
+    LEFT JOIN `film_category` fc ON c.category_id = fc.category_id
+    LEFT JOIN `film` f ON fc.film_id = f.film_id
+    LEFT JOIN `film_actor` fa ON f.film_id = fa.film_id
+    LEFT JOIN `actor` a ON fa.actor_id = a.actor_id
+        AND a.first_name = 'ED' AND a.last_name = 'CHASE'
+    GROUP BY c.name
+    ORDER BY c.name ASC;
+
+___________________________________________________________________________________________________________
+
+Find the first_name, last_name and total_combined_film_length of Sci-Fi films for every actor.
+
+
+That is the result should list the names of all of the actors(even if an actor has not been in any Sci-Fi films) and the total length of Sci-Fi films they have been in.
+
+
+Look at the category table to figure out how to filter data for Sci-Fi films.
+
+Order your results by the actor_id in descending order.
+
+
+-- Put query for Q3 here
+SELECT a.actor_id, a.first_name, a.last_name, 
+    COALESCE(SUM(f.length), 0) AS total_combined_film_length
+    FROM `category` c
+    INNER JOIN `film_category` fc ON fc.category_id = c.category_id and c.name = 'Sci-Fi'
+    INNER JOIN `film` f on f.film_id = fc.film_id
+    INNER JOIN `film_actor` fa ON f.film_id = fa.film_id
+    RIGHT JOIN `actor` a ON a.actor_id = fa.actor_id
+    GROUP BY a.actor_id
+    ORDER BY a.actor_id DESC;
+
+___________________________________________________________________________________________________________
+
+Find the first_name and last_name of all actors who have never been in a Sci-Fi film.
+
+Order by the actor_id in ascending order.
+
+-- Put your query for q4 here
+-- Uses subquery of total sci-fi film duration and selects all actors with 0 mins
+SELECT new_table.a_id AS actor_id, 
+    new_table.a_fn AS first_name,
+    new_table.a_ln AS last_name
+    FROM (
+        SELECT a.actor_id AS a_id, a.first_name AS a_fn,
+            a.last_name AS a_ln, COALESCE(SUM(f.length), 0) AS total_combined_film_length
+            FROM `category` c
+            INNER JOIN `film_category` fc ON fc.category_id = c.category_id and c.name = 'Sci-Fi'
+            INNER JOIN `film` f on f.film_id = fc.film_id
+            INNER JOIN `film_actor` fa ON f.film_id = fa.film_id
+            RIGHT JOIN `actor` a ON a.actor_id = fa.actor_id
+            GROUP BY a.actor_id
+            ORDER BY a.actor_id DESC) AS new_table
+    WHERE new_table.total_combined_film_length = 0
+    ORDER BY new_table.a_id ASC;
+	
+___________________________________________________________________________________________________________
+
+Find the film_title of all films which feature both KIRSTEN PALTROW and WARREN NOLTE
+
+Order the results by film_title in descending order.
+
+ 
+
+Warning: this is a tricky one and while the syntax is all things you know, you have to think a bit oustide the box to figure out how to get a table that shows pairs of actors in movies.
+
+-- Put your query for q5 here.
+
+-- Will select titles that appear in both subqueries
+SELECT kptable.kptitles AS film_title 
+    -- Sub query showing all titles featuring KIRSTEN PALTROW
+    FROM (SELECT f.title AS kptitles FROM `film` f
+        INNER JOIN `film_actor` fa ON f.film_id = fa.film_id
+        INNER JOIN `actor` a ON fa.actor_id = a.actor_id
+        WHERE a.first_name = "KIRSTEN" AND a.last_name = "PALTROW"
+        ORDER BY f.title DESC) as kptable
+    
+    -- Sub query showing all titles featuring WARREN NOLTE     
+    INNER JOIN (SELECT f.title AS wntitles FROM `film` f
+        INNER JOIN `film_actor` fa ON f.film_id = fa.film_id
+        INNER JOIN `actor` a ON fa.actor_id = a.actor_id
+        WHERE a.first_name = "WARREN" AND a.last_name = "NOLTE"
+        ORDER BY f.title DESC) AS wntable
+    ON kptable.kptitles = wntable.wntitles
+        
+    ORDER BY kptable.kptitles DESC;

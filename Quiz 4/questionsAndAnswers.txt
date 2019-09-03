@@ -1,78 +1,168 @@
-Find the number of Certifications held by People grouped by a Planet.
+Create tables in the given order
+Create a table called client with the following columns:
 
-Using the BSG database described in this Quiz's description, find the number of Certifications held by People grouped by a Planet.
+id - an auto-incrementing integer which is the primary key, size 11
+first_name - a varchar with a maximum length of 255 characters, cannot be null
+last_name - a varchar with a maximum length of 255 characters, cannot be null
+dob - a date type with no default and null not allowed
+The combination of the first_name and last_name must be unique in this table.  Name this constraint as full_name
+Create a table called employee with the following columns:
 
+id - an auto-incrementing integer which is the primary key, size 11
+first_name - a varchar of maximum length 255, cannot be null
+last_name - a varchar of maximum length 255, cannot be null
+dob - a date cannot be null
+date_joined - a date cannot be null
+The combination of the first_name and last_name must be unique in this table. Name this constraint as full_name
+Create a table called project with the following columns:
+
+id - an auto-incrementing integer which is the primary key, size 11
+cid - an integer which is a foreign key reference to the client table
+name - a varchar of maximum length 255, cannot be null
+notes - a text column
+The project name must be unique in this table
+Create a table called works_on representing a many-to-many relationship between employees and projects, with the following properties:
+
+eid - an integer which is a foreign key reference to the employee table
+pid - an integer which is a foreign key reference to the project table
+start_date - a date, not null
+The primary key is a combination of eid and pid
  
 
-This should have two columns:
-
-"name" will be the names of planets that have at least one certification.
-"CertCount" which will be the number of certifications held by people from that planet
-Order your results by planet name in ascending order.
-
- 
-
-Example:
-If Lee is certified in "Viper" and "Mechanic" and Kara is certified in "Viper" and they are both from Caprica, then the "CertCount" for the planet Caprica should be 3.
+Do not name any constraints other than the full_name for client and employee.
 
 
+-- Write the query to create the 4 tables below.
+DROP TABLE IF EXISTS `works_on`;
+DROP TABLE IF EXISTS `project`;
+DROP TABLE IF EXISTS `employee`;
+DROP TABLE IF EXISTS `client`;
 
-SELECT bsgpl.name, COUNT(bsgcp.cid) AS CertCount
-FROM bsg_people bsgp
-INNER JOIN bsg_planets bsgpl
-ON bsgp.homeworld = bsgpl.id
-INNER JOIN bsg_cert_people bsgcp
-ON bsgcp.pid = bsgp.id
-GROUP BY bsgpl.name
-ORDER BY bsgpl.name ASC;
+
+CREATE TABLE `client`(
+    `id` int(11) AUTO_INCREMENT,
+    `first_name` varchar(255) NOT NULL,
+    `last_name` varchar(255) NOT NULL,
+    `dob` DATE NOT NULL,
+    CONSTRAINT full_name UNIQUE(`first_name`, `last_name`),
+    PRIMARY KEY(`id`)
+) ENGINE = InnoDB;
+
+
+CREATE TABLE `employee`(
+    `id` int(11) AUTO_INCREMENT,
+    `first_name` varchar(255) NOT NULL,
+    `last_name` varchar(255) NOT NULL,
+    `dob` DATE NOT NULL,
+    `date_joined` DATE NOT NULL,
+    CONSTRAINT full_name UNIQUE(`first_name`, `last_name`),
+    PRIMARY KEY(`id`)
+) ENGINE = InnoDB;
+
+
+CREATE TABLE `project`(
+    `id` int(11) AUTO_INCREMENT, 
+    `cid` int(11),
+    `name` varchar(255) UNIQUE NOT NULL,
+    `notes` text,
+    PRIMARY KEY(`id`),
+    CONSTRAINT `project_ibfk_1` FOREIGN KEY(`cid`) REFERENCES `client`(`id`)
+) ENGINE = InnoDB;
+
+CREATE TABLE `works_on`(
+    `eid` int(11),
+    `pid` int(11),
+    `start_date` DATE NOT NULL,
+    PRIMARY KEY(`eid`, `pid`),
+    CONSTRAINT `works_on_ibfk_1` FOREIGN KEY (`eid`) REFERENCES `employee`(`id`),
+    CONSTRAINT `works_on_ibfk_2` FOREIGN KEY (`pid`) REFERENCES `project` (`id`)
+) ENGINE = InnoDB;
+
+
+-- Leave the queries below untouched. These are to test your submission correctly.
+-- Test that the tables were created
+DESCRIBE client;
+DESCRIBE employee;
+DESCRIBE project;
+DESCRIBE works_on;
+
+-- Test that the correct foreign keys were created 
+SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME 
+FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+WHERE REFERENCED_TABLE_SCHEMA = 'mimir';
+
 ___________________________________________________________________________________________________________
 
-Find people assigned to at least one instance of Viper ship class
-Using the BSG database described in this Quiz's description, find the fname and lname of all people who are assigned to at least one instance of a Viper class ship (this includes all variants of Viper class ships).
+Insert data in the tables
+Insert the following into the client table:
 
+First Name	Last Name	DOB
+Sara		Smith		1/2/1970
+Miguel		Cabrera		2/2/1988
+Bo			Chang		3/2/1985
  
 
-Return only a single row per person and sort by fname in ascending order.
+Insert the following into the employee table:
 
-
-SELECT DISTINCT bsgp.fname, bsgp.lname 
-FROM bsg_people bsgp
-INNER JOIN bsg_ship_assignment bsgsa
-ON bsgsa.pid = bsgp.id
-INNER JOIN bsg_ship_class bsgsc
-ON bsgsa.cid = bsgsc.id
-WHERE bsgsc.name = "Viper"
-ORDER BY bsgp.fname ASC;
-
-___________________________________________________________________________________________________________
-
-Find the people who do not have Viper Certification but are still assigned to Viper class ship
-Find the fname, lname, and ship_instance_id for all people who do not have Viper certification but are assigned to at least one instance of a Viper class ship (this includes all variants of Viper class ships).
+First name		Last name		DOB	Date 	Joined
+Ananya			Jaiswal			1/2/1975	1/1/2009
+Michael			Fern			10/18/1980	6/5/2013
+Abdul			Rehman			3/21/1984	11/10/2013
  
-Return a row for every ship/person combination. Order your results by fname in ascending order.
+
+Insert the following project instances into the project table (you should use a subquery to set up foreign key references and not hard-coded numbers):
+
+cid	name	notes
+reference to Sara Smith	Diamond	Should be done by Jan 2019
+reference to Bo Chang	Chan'g	Ongoing maintenance
+reference to Miguel Cabrera	The Robinson Project	NULL
  
-Use the BSG database from the Quiz Description.
+
+Insert the following into the works_on table. Again, your queries here should not have hard-coded integers for foreign keys.
+
+employee		project					start_date
+Ananya Jaiswal	Chan'g					1/1/2012
+Michael Fern	The Robinson Project	8/8/2013
+Abdul Rehman	Diamond					9/11/2014
 
 
-SELECT bsgp.fname, bsgp.lname, bsgsi.id AS ship_instance_id
-FROM bsg_people bsgp
-INNER JOIN bsg_ship_assignment bsgsa 
-ON bsgsa.pid = bsgp.id
-INNER JOIN bsg_ship_instance bsgsi
-ON bsgsa.sid = bsgsi.id
-INNER JOIN bsg_ship_class bsgsc 
-ON bsgsa.cid = bsgsc.id
-WHERE bsgp.id NOT IN
-(SELECT bsgcp.pid 
-FROM bsg_cert_people bsgcp
-INNER JOIN bsg_cert bsgc
-ON bsgcp.cid = bsgc.id
-WHERE bsgc.title="Viper"
-)
-AND bsgsc.name = "Viper"
-ORDER BY bsgp.fname ASC;
+
+-- write your queries to insert data here
+INSERT INTO `client`(`first_name`, `last_name`, `dob`) VALUES('Sara', 'Smith', '1970/01/02');
+INSERT INTO `client`(`first_name`, `last_name`, `dob`) VALUES('Miguel', 'Cabrera', '1988/02/02');
+INSERT INTO `client`(`first_name`, `last_name`, `dob`) VALUES('Bo', 'Chang', '1985/03/02');
+
+INSERT INTO `employee`(`first_name`, `last_name`, `dob`, `date_joined`) VALUES ('Ananya', 'Jaiswal', '1975/01/02', '2009/01/01');
+INSERT INTO `employee`(`first_name`, `last_name`, `dob`, `date_joined`) VALUES ('Michael', 'Fern', '1980/10/18', '2013/06/05');
+INSERT INTO `employee`(`first_name`, `last_name`, `dob`, `date_joined`) VALUES ('Abdul', 'Rehman', '1984/03/21', '2013/11/10');
+
+INSERT INTO `project`(`cid`, `name`, `notes`) VALUES (
+    (SELECT `id` FROM `client` WHERE `first_name` = 'Sara' AND `last_name` = 'Smith'), 'Diamond', 'Should be done by Jan 2019');
+INSERT INTO `project`(`cid`, `name`, `notes`) VALUES (
+    (SELECT `id` FROM `client` WHERE `first_name` = 'Bo' AND `last_name` = 'Chang'), "Chan'g", 'Ongoing maintenance');
+INSERT INTO `project`(`cid`, `name`, `notes`) VALUES (
+    (SELECT `id` FROM `client` WHERE `first_name` = 'Miguel' AND `last_name` = 'Cabrera'), 'The Robinson Project', NULL);
+    
+INSERT INTO `works_on`(`eid`, `pid`, `start_date`) VALUES (
+    (SELECT `id` FROM `employee` WHERE `first_name` = 'Ananya' AND `last_name` = 'Jaiswal'),
+    (SELECT `id` FROM `project` WHERE `name` = "Chan'g"), '2012/01/01');
+INSERT INTO `works_on`(`eid`, `pid`, `start_date`) VALUES (
+    (SELECT `id` FROM `employee` WHERE `first_name` = 'Michael' AND `last_name` = 'Fern'),
+    (SELECT `id` FROM `project` WHERE `name` = "The Robinson Project"), '2013/08/08');
+INSERT INTO `works_on`(`eid`, `pid`, `start_date`) VALUES (
+    (SELECT `id` FROM `employee` WHERE `first_name` = 'Abdul' AND `last_name` = 'Rehman'),
+    (SELECT `id` FROM `project` WHERE `name` = "Diamond"), '2014/09/11');
+
+    
+    
 
 
-___________________________________________________________________________________________________________
 
+
+
+-- Leave the queries below untouched. These are to test your submission correctly.
+select * from project;
+select * from client;
+select * from employee;
+select * from works_on;
 
