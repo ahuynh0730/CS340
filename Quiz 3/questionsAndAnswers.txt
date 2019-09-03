@@ -1,0 +1,163 @@
+-- Given the bsg_planets table created by using the following definition query :
+--
+-- CREATE TABLE `bsg_planets` (
+-- `id` int(11) NOT NULL AUTO_INCREMENT,
+-- `name` varchar(255) NOT NULL,
+-- `population` bigint(20) DEFAULT NULL,
+-- `language` varchar(255) DEFAULT NULL,
+-- `capital` varchar(255) DEFAULT NULL,
+-- PRIMARY KEY (`id`),
+-- UNIQUE KEY `name` (`name`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1
+--
+-- Write a SQL query to find the population of the planet named 'Caprica' -- 10 points
+
+SELECT bsg_planets.population FROM bsg_planets WHERE bsg_planets.name="Caprica";
+
+
+___________________________________________________________________________________________________________
+
+-- Given the bsg_people table created by using the following definition query :
+--
+-- CREATE TABLE `bsg_people` (
+--  `id` int(11) NOT NULL AUTO_INCREMENT,
+--  `fname` varchar(255) NOT NULL,
+--  `lname` varchar(255) DEFAULT NULL,
+--  `homeworld` int(11) DEFAULT NULL,
+--  `age` int(11) DEFAULT NULL,
+--  PRIMARY KEY (`id`),
+--  KEY `homeworld` (`homeworld`),
+--  CONSTRAINT `bsg_people_ibfk_1` FOREIGN KEY (`homeworld`) REFERENCES `bsg_planets` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+-- ) ENGINE=InnoDB
+--
+--  Find the first name, last name, and age of people from bsg_people whose
+--  last name is not 'Adama' - 10 points
+SELECT bsgp.fname, bsgp.lname, bsgp.age FROM bsg_people bsgp WHERE bsgp.lname!="Adama";
+
+___________________________________________________________________________________________________________
+
+--
+-- CREATE TABLE `bsg_planets` (
+-- `id` int(11) NOT NULL AUTO_INCREMENT,
+-- `name` varchar(255) NOT NULL,
+-- `population` bigint(20) DEFAULT NULL,
+-- `language` varchar(255) DEFAULT NULL,
+-- `capital` varchar(255) DEFAULT NULL,
+-- PRIMARY KEY (`id`),
+-- UNIQUE KEY `name` (`name`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1
+--
+-- Find the name and population of the planets with a population larger than
+-- 2,600,000,000 - 10 points
+SELECT bsgp.name, bsgp.population FROM bsg_planets bsgp WHERE bsgp.population > 2600000000;
+
+
+___________________________________________________________________________________________________________
+
+-- Given the bsg_people table created by using the following definition query :
+--
+-- CREATE TABLE `bsg_people` (
+--  `id` int(11) NOT NULL AUTO_INCREMENT,
+--  `fname` varchar(255) NOT NULL,
+--  `lname` varchar(255) DEFAULT NULL,
+--  `homeworld` int(11) DEFAULT NULL,
+--  `age` int(11) DEFAULT NULL,
+--  PRIMARY KEY (`id`),
+--  KEY `homeworld` (`homeworld`),
+--  CONSTRAINT `bsg_people_ibfk_1` FOREIGN KEY (`homeworld`) REFERENCES `bsg_planets` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+-- ) ENGINE=InnoDB
+--
+-- Find the first name, last name, and age of people from bsg_people whose age is NULL - 12 points
+
+SELECT bsgp.fname, bsgp.lname, bsgp.age FROM bsg_people bsgp WHERE bsgp.age IS NULL;
+
+
+___________________________________________________________________________________________________________
+
+-- Given the bsg_planets table created by using the following definition query :
+--
+-- CREATE TABLE `bsg_planets` (
+-- `id` int(11) NOT NULL AUTO_INCREMENT,
+-- `name` varchar(255) NOT NULL,
+-- `population` bigint(20) DEFAULT NULL,
+-- `language` varchar(255) DEFAULT NULL,
+-- `capital` varchar(255) DEFAULT NULL,
+-- PRIMARY KEY (`id`),
+-- UNIQUE KEY `name` (`name`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1
+--
+-- Insert information about the planet Mars which has a population of 2,
+-- language as "Binary" and "Olympus Mons" as Capital, in bsg_planets. Then
+-- list the row(s), with all the information for that planet. - 12 points
+
+INSERT INTO bsg_planets(name, population, language, capital) VALUES("Mars", 2, "Binary", "Olympus Mons");
+SELECT * from bsg_planets bsgp WHERE bsgp.name="Mars";
+
+
+___________________________________________________________________________________________________________
+
+-- Given the bsg_people table created by using the following definition query :
+--
+-- CREATE TABLE `bsg_people` (
+--  `id` int(11) NOT NULL AUTO_INCREMENT,
+--  `fname` varchar(255) NOT NULL,
+--  `lname` varchar(255) DEFAULT NULL,
+--  `homeworld` int(11) DEFAULT NULL,
+--  `age` int(11) DEFAULT NULL,
+--  PRIMARY KEY (`id`),
+--  KEY `homeworld` (`homeworld`),
+--  CONSTRAINT `bsg_people_ibfk_1` FOREIGN KEY (`homeworld`) REFERENCES `bsg_planets` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+-- ) ENGINE=InnoDB
+--
+-- Update age of all those people whose last name is 'Adama' and first name is
+-- 'William' to 62 and then print all rows with all the columns which match the
+-- same criteria, in a separate query. 
+
+UPDATE bsg_people bsgp SET bsgp.age = 62 WHERE bsgp.lname="Adama" AND bsgp.fname="William";
+SELECT * FROM bsg_people bsgp WHERE bsgp.lname="Adama" AND bsgp.fname="William";
+
+
+___________________________________________________________________________________________________________
+
+-- Given the bsg_people table created by using the following definition query :
+--
+-- CREATE TABLE `bsg_people` (
+--  `id` int(11) NOT NULL AUTO_INCREMENT,
+--  `fname` varchar(255) NOT NULL,
+--  `lname` varchar(255) DEFAULT NULL,
+--  `homeworld` int(11) DEFAULT NULL,
+--  `age` int(11) DEFAULT NULL,
+--  PRIMARY KEY (`id`),
+--  KEY `homeworld` (`homeworld`),
+--  CONSTRAINT `bsg_people_ibfk_1` FOREIGN KEY (`homeworld`) REFERENCES `bsg_planets` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+-- ) ENGINE=InnoDB
+--
+-- Delete all people whose age is NULL. Then, list all such people whose age is NOT NULL.
+
+DELETE FROM bsg_people WHERE bsg_people.age IS NULL;
+SELECT * from bsg_people;
+
+
+___________________________________________________________________________________________________________
+
+-- Create a table with the following columns, named bsg_spaceship
+--
+--    id - an auto-incrementing integer which is also the primary key
+--    name - variable-length string with a max of 255 characters, cannot be null
+--    separate_saucer_section - a boolean property which specifies whether or not there is a separate saucer section on the spaceship. This defaults to No.
+--    length - integer, cannot be null
+--
+-- Once you have created the table, run the query "DESCRIBE bsg_spaceship;"
+
+ CREATE TABLE bsg_spaceship (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `separate_saucer_section` BOOLEAN NOT NULL DEFAULT 0,
+  `length` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+DESCRIBE bsg_spaceship;
+
+
+___________________________________________________________________________________________________________
