@@ -1,0 +1,78 @@
+Find the number of Certifications held by People grouped by a Planet.
+
+Using the BSG database described in this Quiz's description, find the number of Certifications held by People grouped by a Planet.
+
+ 
+
+This should have two columns:
+
+"name" will be the names of planets that have at least one certification.
+"CertCount" which will be the number of certifications held by people from that planet
+Order your results by planet name in ascending order.
+
+ 
+
+Example:
+If Lee is certified in "Viper" and "Mechanic" and Kara is certified in "Viper" and they are both from Caprica, then the "CertCount" for the planet Caprica should be 3.
+
+
+
+SELECT bsgpl.name, COUNT(bsgcp.cid) AS CertCount
+FROM bsg_people bsgp
+INNER JOIN bsg_planets bsgpl
+ON bsgp.homeworld = bsgpl.id
+INNER JOIN bsg_cert_people bsgcp
+ON bsgcp.pid = bsgp.id
+GROUP BY bsgpl.name
+ORDER BY bsgpl.name ASC;
+___________________________________________________________________________________________________________
+
+Find people assigned to at least one instance of Viper ship class
+Using the BSG database described in this Quiz's description, find the fname and lname of all people who are assigned to at least one instance of a Viper class ship (this includes all variants of Viper class ships).
+
+ 
+
+Return only a single row per person and sort by fname in ascending order.
+
+
+SELECT DISTINCT bsgp.fname, bsgp.lname 
+FROM bsg_people bsgp
+INNER JOIN bsg_ship_assignment bsgsa
+ON bsgsa.pid = bsgp.id
+INNER JOIN bsg_ship_class bsgsc
+ON bsgsa.cid = bsgsc.id
+WHERE bsgsc.name = "Viper"
+ORDER BY bsgp.fname ASC;
+
+___________________________________________________________________________________________________________
+
+Find the people who do not have Viper Certification but are still assigned to Viper class ship
+Find the fname, lname, and ship_instance_id for all people who do not have Viper certification but are assigned to at least one instance of a Viper class ship (this includes all variants of Viper class ships).
+ 
+Return a row for every ship/person combination. Order your results by fname in ascending order.
+ 
+Use the BSG database from the Quiz Description.
+
+
+SELECT bsgp.fname, bsgp.lname, bsgsi.id AS ship_instance_id
+FROM bsg_people bsgp
+INNER JOIN bsg_ship_assignment bsgsa 
+ON bsgsa.pid = bsgp.id
+INNER JOIN bsg_ship_instance bsgsi
+ON bsgsa.sid = bsgsi.id
+INNER JOIN bsg_ship_class bsgsc 
+ON bsgsa.cid = bsgsc.id
+WHERE bsgp.id NOT IN
+(SELECT bsgcp.pid 
+FROM bsg_cert_people bsgcp
+INNER JOIN bsg_cert bsgc
+ON bsgcp.cid = bsgc.id
+WHERE bsgc.title="Viper"
+)
+AND bsgsc.name = "Viper"
+ORDER BY bsgp.fname ASC;
+
+
+___________________________________________________________________________________________________________
+
+
